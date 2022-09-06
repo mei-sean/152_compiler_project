@@ -39,7 +39,27 @@ bool Scanner::isIdentifier(char* str) {
     // Return true by default. 
     return true;
 }
+string Scanner::searchTable(string word) {    //implemented with Binary Search O(log n)
+    int left = 0;    //left bound of vector search
+    int right = table.size() - 1;   //right bound of vector search
+    int mid = (right + left) / 2;    //index of middle bounded search
 
-string Scanner::nexttoken() {
-
+    while (mid > left) {
+        int i = 0;
+        while (word[i] == table[mid][i]) {
+            i++;
+        }
+        if (word[i] > table[mid][i]) {
+            left = mid + 1;
+        }
+        else if (word[i] < table[mid][i]) {
+            right = mid - 1;
+        }
+        else {
+            return table[mid];
+        }
+    }
 }
+//string Scanner::nexttoken() {
+
+//}
