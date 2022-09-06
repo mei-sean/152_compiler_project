@@ -7,7 +7,7 @@ using namespace std;
 
 class Scanner {
 public:
-    string nexttoken();
+    char nexttoken(string line, int i);
     bool isIdentifier(char*);
     bool isSpecialSymbol(char);
     bool isNumber(char*);

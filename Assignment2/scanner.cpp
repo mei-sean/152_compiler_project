@@ -13,9 +13,7 @@ bool Scanner::isSpecialSymbol(char ch) {
     {
         return true;
     }
-
     return false;
-
 }
 
 bool Scanner::isIdentifier(char* str) {
@@ -27,7 +25,6 @@ bool Scanner::isIdentifier(char* str) {
     {
         return false;
     }
-
     // If string length is one, it's already an identifier. 
     if (strlen(str) == 1) return true;
     // Otherwise, check for special symbols. 
@@ -111,6 +108,10 @@ string Scanner::searchTable(string word) {    //implemented with Binary Search O
         }
     }
 }
-//string Scanner::nexttoken() {
+char Scanner::nexttoken(string line, int i) {
+    while (line[i] != ' ' || line[i] != '\n' || line[i] != '\t') {
 
-//}
+    }
+    char token;
+    return token;
+}
