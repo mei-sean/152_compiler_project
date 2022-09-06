@@ -10,6 +10,9 @@ public:
     string nexttoken();
     bool isIdentifier(char*);
     bool isSpecialSymbol(char);
+    bool isNumber(char*);
+    bool isReservedWord(char*);
+    bool isMiscellaneousToken(char*);
     string searchTable(string word);
 
 private:

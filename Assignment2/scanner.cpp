@@ -39,6 +39,57 @@ bool Scanner::isIdentifier(char* str) {
     // Return true by default. 
     return true;
 }
+
+bool Scanner::isNumber(char* str) {
+    int numOfDecimal = 0;
+
+    if (strlen(str) == 0) {
+        return false;
+    }
+
+    else {
+        for (int i = 0; i < strlen(str); i++) {
+            if (numOfDecimal > 1 && str[i] == '.') {
+                return false;
+            }
+            else if (numOfDecimal <= 1) {
+                numOfDecimal++;
+            }
+            if (str[i] != '0' && str[i] != '1' && str[i] != '2' &&
+                str[i] != '3' && str[i] != '4' && str[i] != '5' &&
+                str[i] != '6' && str[i] != '7' && str[i] != '8' &&
+                str[i] != '9' || (str[i] == '-' && i > 0)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+bool Scanner::isReservedWord(char* str) {
+    if (!strcmp(str, "PROGRAM") || !strcmp(str, "BEGIN") ||
+        !strcmp(str, "END") || !strcmp(str, "REPEAT") ||
+        !strcmp(str, "UNTIL") || !strcmp(str, "WRITE") ||
+        !strcmp(str, "WRITELN") || !strcmp(str, "THEN") ||
+        !strcmp(str, "IF") || !strcmp(str, "WHILE") ||
+        !strcmp(str, "FOR"))
+    {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool Scanner::isMiscellaneousToken(char* str) {
+    if (!strcmp(str, "END_OF_FILE") || !strcmp(str, "ERROR")) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 string Scanner::searchTable(string word) {    //implemented with Binary Search O(log n)
     int left = 0;    //left bound of vector search
     int right = table.size() - 1;   //right bound of vector search
