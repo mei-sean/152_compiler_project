@@ -25,7 +25,8 @@ public:
     char nexttoken(istream& in);
     bool isAlpha(char ch);
     bool isDigit(char ch);
-    bool isSpecialSymbol(char);
+    bool isSpecialSymbol(char ch);
+    bool isDoubleSymbol(char ch);
     bool isNumber(char*);
     bool isReservedWord(char*);
     bool isMiscellaneousToken(char*);

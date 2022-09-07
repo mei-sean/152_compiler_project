@@ -21,6 +21,14 @@ bool Scanner::isAlpha(char ch) {
     }
     return false;
 }
+bool Scanner::isDoubleSymbol(char ch) {
+    if (ch == ':' || ch == '<' || ch == '>' ||
+        ch == '+' || ch == '-' || ch == '*' ||
+        ch == '/' || ch == '(') {
+        return true;
+    }
+    return false;
+}
 bool Scanner::isDigit(char ch) {
     // Not an identifier if the first character is an int or a special symbol.
     if (ch == '0' || ch == '1' || ch == '2' ||
@@ -84,27 +92,14 @@ bool Scanner::isMiscellaneousToken(char* str) {
     }
 }
 
-string Scanner::searchTable(string word) {    //implemented with Binary Search O(log n)
-    int left = 0;    //left bound of vector search
-    int right = table.size() - 1;   //right bound of vector search
-    int mid = (right + left) / 2;    //index of middle bounded search
-
-    while (mid > left) {
-        int i = 0;
-        while (word[i] == table[mid][i]) {
-            i++;
+string Scanner::searchTable(string word) {    //implemented with linear Search O(n)
+    int max = table.size();   //right bound of vector search
+    for (int i = 0; i < max; i++) {
+        if (word == table[i]) {
+            return table[i];
         }
-        if (word[i] > table[mid][i]) {
-            left = mid + 1;
-        }
-        else if (word[i] < table[mid][i]) {
-            right = mid - 1;
-        }
-        else {
-            return table[mid];
-        }
+        return "";
     }
-    return "No Entry Found";
 }
 char Scanner::nexttoken(istream& in) {
     char next_ch;
