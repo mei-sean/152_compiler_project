@@ -104,6 +104,7 @@ string Scanner::searchTable(string word) {    //implemented with Binary Search O
             return table[mid];
         }
     }
+    return "No Entry Found";
 }
 char Scanner::nexttoken(istream& in) {
     char next_ch;
