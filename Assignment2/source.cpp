@@ -9,57 +9,48 @@ using namespace std;
 string str_upper(string word);
 int main()
 {
-    Scanner scan;
+    Scanner scan;    //scanner object
     ifstream ifs;
     string word;
     ofstream ofs;
 
-    int line = 1;
-    char ch;
-    bool error;
+    int line = 1;    //line to track which line we are in the input file
+    char ch;         //char to store next character in file
 
-    ifs.open("masterTestCase.txt");    //input file stream
-    if (ifs.fail()) {
+    ifs.open("test-in.txt");    //input file stream
+    if (ifs.fail()) {    //check if input file opened properly
         cout << "<ERROR> input file opening failure" << endl;
         exit(1);
     }
-    ofs.open("test-out.txt");
+    ofs.open("test-out.txt");    //check if output file opened properly.
     if (ofs.fail()) {
         cout << "<ERROR> output file opening failure" << endl;
         exit(1);
     }
     while (!ifs.eof()) {    //continue input file stream if not at end of file
         word = "";    //string to store current word
-        error = false;     //beginning of scan no error
         ch = scan.nexttoken(ifs);    //scan the first character in file 
         if (scan.isAlpha(ch)) {    //check if char is a letter
             //This block indicates word must be identifier or keyword
             word.push_back(ch);    //append letter to current word
             ch = scan.nexttoken(ifs);    //get next character
             while (ch != '\n' && ch != '\t' && ch != ' ') {
-                word.push_back(ch);
-                if (scan.isDigit(ch) || scan.isSpecialSymbol(ch)) {
-                    error = true;  
+                if (!scan.isAlpha(ch)) {    //if not letter print error message
+                    cout << "TOKEN ERROR at line " << line << ": Invalid  at " << ch << endl;
+                    ofs << "TOKEN ERROR at line " << line << ": Invalid  at " << ch << endl;
+                    break;
                 }
-                ch = scan.nexttoken(ifs);
+                word.push_back(ch);    
+                ch = scan.nexttoken(ifs);    
             }
-            if (error) {
-                cout << "TOKEN ERROR at line " << line << endl;
-                ofs << "TOKEN ERROR at line " << line << endl;
+            string token = (str_upper(word));    //convert token to all uppercase
+            if (scan.searchTable(token) == token) {    //check if token matches any keyword in table
+                cout << token << " : " << word << endl;
+                ofs << token << " : " << word << endl;
             }
             else {
-                string token = (str_upper(word));
-                if (scan.searchTable(token) == token) {
-                    cout << token << " : " << word << endl;
-                    ofs << token << " : " << word << endl;
-                }
-                else {
-                    cout << "IDENTIFIER : " << word << endl;
-                    ofs << "IDENTIFIER : " << word << endl;
-                }
-            }
-            if (ch == '\n') {
-                line++;
+                cout << "IDENTIFIER : " << word << endl;
+                ofs << "IDENTIFIER : " << word << endl;
             }
         }
         else if (scan.isDigit(ch)) {    //check if first char is a digit
@@ -68,31 +59,24 @@ int main()
             word.push_back(ch);
             while (ch != '\n' && ch != '\t' && ch != ' ') {
                 ch = scan.nexttoken(ifs);
-                if (ch == '.' && !hasDecimal) {
+                if (ch == '.' && !hasDecimal) {    //if first decimal found
                     hasDecimal = true;
                     word.push_back(ch);
                 }
-                else if (ch == '.' && hasDecimal) {
-                    invalid = true;
+                else if (ch == '.' && hasDecimal) {    //if another decimal is found
+                    invalid = true;                    //number is invalid 
                 }
                 else {
                     word.push_back(ch);
                 }
             }
-            if (hasDecimal && !invalid) {
-                cout << "REAL : " << word << endl;
-                ofs << "REAL : " << word << endl;
-            }
-            else if (!invalid) {
+            if (!invalid) {
                 cout << "INTEGER : " << word << endl;
                 ofs << "INTEGER : " << word << endl;
             }
             else {
-                cout << "ERROR at line " << line << endl;
-                ofs << "ERROR at line " << line << endl;
-            }
-            if (ch == '\n') {
-                line++;
+                cout << "TOKEN ERROR at line " << line <<": Invalid number at "<<word;
+                ofs << "TOKEN ERROR at line " << line << ": Invalid number at " << word;
             }
         }
         else if (scan.isSpecialSymbol(ch)) {    //check if first char is an operator
@@ -122,12 +106,9 @@ int main()
                     word = "";
                 }
                 ch = scan.nexttoken(ifs);
-                if (ch != ' ' || ch != '\n' || ch != '\t') {
+                if (ch != ' ' && ch != '\n' && ch != '\t') {
                     word.push_back(ch);
                 }
-            }
-            if (ch == '\n') {
-                line++;
             }
         }
         else if (ch == '\'') {    //must be a string or character
@@ -155,9 +136,6 @@ int main()
                 cout << "TOKEN ERROR at line " << line << endl;
                 ofs << "TOKEN ERROR at line " << line << endl;
             }
-            if (ch == '\n') {
-                line++;
-            }
         }
         word = "";
         if (ch == '\n') {
@@ -167,7 +145,7 @@ int main()
     ifs.close();    //close input file
     ofs.close();
 }
-string str_upper(string word) {
+string str_upper(string word) {    //converts a string to all uppercase 
     string new_word = word;
     for (int i = 0; i < new_word.size(); i++) {
         new_word.at(i) = toupper(new_word.at(i));

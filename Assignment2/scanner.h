@@ -8,13 +8,13 @@ using namespace std;
 
 class Scanner {
 public:
-    char nexttoken(ifstream& in);
-    bool isAlpha(char ch);
-    bool isDigit(char ch);
-    bool isSpecialSymbol(char ch);
-    bool isDoubleSymbol(char ch);
-    string convertToken(string token);
-    string searchTable(string word);
+    char nexttoken(ifstream& in);        //Retreive next character from input file stream
+    bool isAlpha(char ch);               //Check if current character is a letter
+    bool isDigit(char ch);               //Check if current character is a digit
+    bool isSpecialSymbol(char ch);       //Check if current character is a symbol
+    bool isDoubleSymbol(char ch);        //Check if current character has two symbols
+    string convertToken(string token);   //Convert a symbol to its abreviated name EX. + -> PLUSOP
+    string searchTable(string word);     //Search table contained all reserved words and symbols
 
 private:
     vector<string> table = { "AND", "ARRAY", "ASM", "BEGIN", "BREAK", "CASE",
@@ -25,6 +25,6 @@ private:
     "STRING", "THEN", "TO", "TRUE", "TYPE", "UNIT", "UNTIL", "USES", "VAR", "WHILE", "WITH",
     "XOR", "INTEGER", "REAL", "IDENTIFIER", "+", "-", "*", "/", ":=",
     "=", "<>", "<=", ">=", "<", ">", "+=", "-=", "*=",
-    "/=", "^", ";", ",", "(", ")", "[", "]", "{", "}", "(*", "*)"}; //Table has IDENTIFIER spelled as INDENTIFIER?? mistake i dunno lmao
+    "/=", "^", ";", ",", "(", ")", "[", "]", "{", "}", "(*", "*)"}; 
 };
 #endif

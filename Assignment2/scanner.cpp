@@ -9,13 +9,14 @@ bool Scanner::isSpecialSymbol(char ch) {
         ch == '/' || ch == ',' || ch == '.' || ch == ';' ||
         ch == ':=' || ch == '(' || ch == ')' || ch == '=' ||
         ch == '<' || ch == '>' || ch == '{' || ch == '}' ||
-        ch == '[' || ch == ']')
+        ch == '[' || ch == ']' || ch == '^')
     {
         return true;
     }
     return false;
 }
 bool Scanner::isAlpha(char ch) {
+    //check if character is a letter
     if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
         return true;
     }
@@ -50,7 +51,7 @@ string Scanner::searchTable(string word) {    //implemented with linear Search O
     string emptyString = "";
     return emptyString;
 }
-string Scanner::convertToken(string token) {
+string Scanner::convertToken(string token) {    //convert string into its keyword
     string returnToken;
     if (token == "+") {
         returnToken = "PLUSOP";
@@ -132,7 +133,8 @@ string Scanner::convertToken(string token) {
     }
     return returnToken;
 }
-char Scanner::nexttoken(ifstream& in) {
+
+char Scanner::nexttoken(ifstream& in) {    //get next character in input stream from file
     char next_ch;
     in.get(next_ch);
     return next_ch;

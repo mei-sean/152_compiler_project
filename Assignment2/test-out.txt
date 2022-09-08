@@ -30,6 +30,7 @@ RBRACKET : ]
 LBRACE : {
 RBRACE : }
 RBRACE : }
+CARAT : ^
 PLUSOP : +
 ASSIGN : :=
 NE : <>
@@ -42,6 +43,8 @@ INTEGER : 20
 INTEGER : 31415926 
 INTEGER : 1
 
-ERROR at line 16
-IDENTIFIER : HUH?
-IDENTIFIER : PLEASE!
+TOKEN ERROR at line 13: Invalid number at 3.141
+TOKEN ERROR at line 14: Invalid  at ?
+IDENTIFIER : HUH
+TOKEN ERROR at line 15: Invalid  at !
+IDENTIFIER : PLEASE
