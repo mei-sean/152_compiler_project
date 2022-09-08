@@ -9,7 +9,7 @@ bool Scanner::isSpecialSymbol(char ch) {
         ch == '/' || ch == ',' || ch == '.' || ch == ';' ||
         ch == ':=' || ch == '(' || ch == ')' || ch == '=' ||
         ch == '<' || ch == '>' || ch == '{' || ch == '}' ||
-        ch == '[' || ch == ']' || ch == '\'')
+        ch == '[' || ch == ']')
     {
         return true;
     }

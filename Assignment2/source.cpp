@@ -59,17 +59,17 @@ int main()
             //This block indicates word must be a integer or real
 
         }
-        else if (scan.isSpecialSymbol(ch)) {
+        else if (scan.isSpecialSymbol(ch)) {    //check if first char is an operator
             //This block indicates word must be a operator 
             word.push_back(ch);    //append letter to current word
-            while (ch != '\n' && ch != '\t' && ch != ' ') {
-                if (scan.isDoubleSymbol(ch)) {
+            while (ch != '\n' && ch != '\t' && ch != ' ') {    //while not end of word
+                if (scan.isDoubleSymbol(ch)) {    //check if operator can have two characters
                     ch = scan.nexttoken(ifs);
-                    string tempWord = word;
+                    string tempWord = word;    //create two character operator
                     tempWord.push_back(ch);
-                    string token = scan.searchTable(tempWord);
-                    if (token != "") {
-                        cout << token << " : " << tempWord << endl;
+                    string token = scan.searchTable(tempWord);    //check if operator is in table
+                    if (token != "") {    //if operator is in table
+                        cout << token << " : " << tempWord << endl;    //print the 2 character operator 
                     }
                 }
                 else {
@@ -82,7 +82,8 @@ int main()
                 }
             }
         }
-        //check table 
+        else if(ch == 
+
     }
     ifs.close();    //close input file
 }
