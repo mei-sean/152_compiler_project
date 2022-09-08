@@ -57,6 +57,21 @@ int main()
         }
         else if (scan.isDigit(ch)) {    //check if first char is a digit
             //This block indicates word must be a integer or real
+            int periods = 0;
+            //bool isInteger = false; 
+            bool isValidInteger = true;
+            while (ch != '\n' && ch != '\t' && ch != ' ') {
+                word.push_back(ch);
+                if (ch == '.') {
+                    periods++;
+                    //isInteger = true;
+                }
+                if (periods >= 2) {
+                    isValidInteger = false; 
+                    //isInteger = false;
+                }
+                ch = scan.nexttoken(ifs);
+            }
 
         }
         else if (scan.isSpecialSymbol(ch)) {
