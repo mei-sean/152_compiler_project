@@ -56,8 +56,34 @@ int main()
             }
         }
         else if (scan.isDigit(ch)) {    //check if first char is a digit
-            //This block indicates word must be a integer or real
-
+            bool hasDecimal = false;
+            bool invalid = false;
+            word.push_back(ch);
+            while (ch != '\n' && ch != '\t' && ch != ' ') {
+                ch = scan.nexttoken(ifs);
+                if (ch == '.' && !hasDecimal) {
+                    hasDecimal = true;
+                    word.push_back(ch);
+                }
+                else if (ch == '.' && hasDecimal) {
+                    invalid = true;
+                }
+                else {
+                    word.push_back(ch);
+                }
+            }
+            if (hasDecimal && !invalid) {
+                cout << "REAL : " << word << endl;
+            }
+            else if(!invalid) {
+                cout << "INTEGER : " << word << endl;
+            }
+            else {
+                cout << "ERROR at line " << line << endl;
+            }
+            if (ch == '\n') {
+                line++;
+            }
         }
         else if (scan.isSpecialSymbol(ch)) {    //check if first char is an operator
             //This block indicates word must be a operator 
@@ -82,8 +108,28 @@ int main()
                 }
             }
         }
-        else if(ch == 
-
+        else if (ch == '\'') {    //must be a string or character
+            word.push_back(ch);
+            bool endOfStr = false;
+            while (ch != '\n' && ch != '\t') {
+                ch = scan.nexttoken(ifs);
+                if (ch == '\'') {
+                    endOfStr = true;
+                }
+                word.push_back(ch);
+                if (endOfStr) {
+                    cout << "STRING : " << word << endl;
+                    break;
+                }
+            }
+            if (!endOfStr) {
+                cout << "TOKEN ERROR at line " << line << endl;
+            }
+            if (ch == '\n') {
+                line++;
+            }
+        }
+        word = "";
     }
     ifs.close();    //close input file
 }

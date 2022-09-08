@@ -98,8 +98,9 @@ string Scanner::searchTable(string word) {    //implemented with linear Search O
         if (word == table[i]) {
             return table[i];
         }
-        return "";
     }
+    string emptyString = "";
+    return emptyString;
 }
 char Scanner::nexttoken(istream& in) {
     char next_ch;
