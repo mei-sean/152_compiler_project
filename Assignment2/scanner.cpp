@@ -50,6 +50,88 @@ string Scanner::searchTable(string word) {    //implemented with linear Search O
     string emptyString = "";
     return emptyString;
 }
+string Scanner::convertToken(string token) {
+    string returnToken;
+    if (token == "+") {
+        returnToken = "PLUSOP";
+    }
+    else if (token == "-") {
+        returnToken = "MINUSOP";
+    }
+    else if (token == "*") {
+        returnToken = "MULTOP";
+    }
+    else if (token == "/") {
+        returnToken = "DIVOP";
+    }
+    else if (token == ":=") {
+        returnToken = "ASSIGN";
+    }
+    else if (token == "=") {
+        returnToken = "EQUAL";
+    }
+    else if (token == "<>") {
+        returnToken = "NE";
+    }
+    else if (token == "<=") {
+        returnToken = "LTEQ";
+    }
+    else if (token == ">=") {
+        returnToken = "GTEQ";
+    }
+    else if (token == "<") {
+        returnToken = "LT";
+    }
+    else if (token == ">") {
+        returnToken = "GT";
+    }
+    else if (token == "+=") {
+        returnToken = "PLUSEQUAL";
+    }
+    else if (token == "-=") {
+        returnToken = "MINUSEQUAL";
+    }
+    else if (token == "*=") {
+        returnToken = "MULTEQUAL";
+    }
+    else if (token == "/=") {
+        returnToken = "DIVEQUAL";
+    }
+    else if (token == "^") {
+        returnToken = "CARAT";
+    }
+    else if (token == ";") {
+        returnToken = "SEMICOLOR";
+    }
+    else if (token == ",") {
+        returnToken = "COMMA";
+    }
+    else if (token == "(") {
+        returnToken = "LPAREN";
+    }
+    else if (token == ")") {
+        returnToken = "RPAREN";
+    }
+    else if (token == "[") {
+        returnToken = "LBRACKET";
+    }
+    else if (token == "]") {
+        returnToken = "RBRACKET";
+    }
+    else if (token == "{") {
+        returnToken = "LBRACE";
+    }
+    else if (token == "}") {
+        returnToken = "RBRACE";
+    }
+    else if (token == "(*") {
+        returnToken = "LCOMMENT";
+    }
+    else if (token == "*)") {
+        returnToken = "RCOMMENT";
+    }
+    return returnToken;
+}
 char Scanner::nexttoken(ifstream& in) {
     char next_ch;
     in.get(next_ch);

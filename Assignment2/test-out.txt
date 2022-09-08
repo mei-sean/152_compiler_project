@@ -1,0 +1,47 @@
+IDENTIFIER : Hello
+IDENTIFIER : world
+BEGIN : begin
+IDENTIFIER : begins
+BEGIN : BEGIN
+BEGIN : Begin
+BEGIN : BeGiN
+STRING : 'Hello, world.'
+STRING : ''
+CHARACTER : 'A'
+CHARACTER : 'B'
+STRING : ''
+PLUSOP : +
+MINUSOP : -
+MULTOP : *
+DIVOP : /
+ASSIGN : :=
+COMMA : ,
+SEMICOLOR : ;
+EQUAL : =
+NE : <>
+LT : <
+LTEQ : <=
+GTEQ : >=
+GT : >
+LPAREN : (
+RPAREN : )
+LBRACKET : [
+RBRACKET : ]
+LBRACE : {
+RBRACE : }
+RBRACE : }
+PLUSOP : +
+ASSIGN : :=
+NE : <>
+EQUAL : =
+LTEQ : <=
+EQUAL : =
+INTEGER : 0 
+INTEGER : 1 
+INTEGER : 20 
+INTEGER : 31415926 
+INTEGER : 1
+
+ERROR at line 16
+IDENTIFIER : HUH?
+IDENTIFIER : PLEASE!

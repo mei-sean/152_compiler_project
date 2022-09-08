@@ -12,6 +12,7 @@ int main()
     Scanner scan;
     ifstream ifs;
     string word;
+    ofstream ofs;
 
     int line = 1;
     char ch;
@@ -22,7 +23,11 @@ int main()
         cout << "<ERROR> input file opening failure" << endl;
         exit(1);
     }
-    cout << "File opened properly";
+    ofs.open("test-out.txt");
+    if (ofs.fail()) {
+        cout << "<ERROR> output file opening failure" << endl;
+        exit(1);
+    }
     while (!ifs.eof()) {    //continue input file stream if not at end of file
         word = "";    //string to store current word
         error = false;     //beginning of scan no error
@@ -34,23 +39,23 @@ int main()
             while (ch != '\n' && ch != '\t' && ch != ' ') {
                 word.push_back(ch);
                 if (scan.isDigit(ch) || scan.isSpecialSymbol(ch)) {
-                    error = true;
-                }
-                else {
-                    word.push_back(ch);
+                    error = true;  
                 }
                 ch = scan.nexttoken(ifs);
             }
             if (error) {
                 cout << "TOKEN ERROR at line " << line << endl;
+                ofs << "TOKEN ERROR at line " << line << endl;
             }
             else {
                 string token = (str_upper(word));
                 if (scan.searchTable(token) == token) {
                     cout << token << " : " << word << endl;
+                    ofs << token << " : " << word << endl;
                 }
                 else {
-                    cout << "Identifier : " << word << endl;
+                    cout << "IDENTIFIER : " << word << endl;
+                    ofs << "IDENTIFIER : " << word << endl;
                 }
             }
             if (ch == '\n') {
@@ -76,12 +81,15 @@ int main()
             }
             if (hasDecimal && !invalid) {
                 cout << "REAL : " << word << endl;
+                ofs << "REAL : " << word << endl;
             }
             else if (!invalid) {
                 cout << "INTEGER : " << word << endl;
+                ofs << "INTEGER : " << word << endl;
             }
             else {
                 cout << "ERROR at line " << line << endl;
+                ofs << "ERROR at line " << line << endl;
             }
             if (ch == '\n') {
                 line++;
@@ -89,7 +97,7 @@ int main()
         }
         else if (scan.isSpecialSymbol(ch)) {    //check if first char is an operator
             //This block indicates word must be a operator 
-            word.push_back(ch);    //append letter to current word
+            word.push_back(ch);    //append letter to current word 
             while (ch != '\n' && ch != '\t' && ch != ' ') {    //while not end of word
                 if (scan.isDoubleSymbol(ch)) {    //check if operator can have two characters
                     ch = scan.nexttoken(ifs);
@@ -97,17 +105,29 @@ int main()
                     tempWord.push_back(ch);
                     string token = scan.searchTable(tempWord);    //check if operator is in table
                     if (token != "") {    //if operator is in table
-                        cout << token << " : " << tempWord << endl;    //print the 2 character operator 
+                        cout << scan.convertToken(token) << " : " << tempWord << endl;    //print the 2 character operator 
+                        ofs << scan.convertToken(token) << " : " << tempWord << endl;
+                        word = "";
+                    }
+                    else {
+                        cout << scan.convertToken(word) << " : " << word << endl;
+                        ofs << scan.convertToken(word) << " : " << word << endl;
+                        word = "";
                     }
                 }
                 else {
                     string token = scan.searchTable(word);
-                    cout << token << " : " << word << endl;
+                    cout << scan.convertToken(token) << " : " << word << endl;
+                    ofs << scan.convertToken(token) << " : " << word << endl;
+                    word = "";
                 }
                 ch = scan.nexttoken(ifs);
-                if (ch == '\n') {
-                    line++;
+                if (ch != ' ' || ch != '\n' || ch != '\t') {
+                    word.push_back(ch);
                 }
+            }
+            if (ch == '\n') {
+                line++;
             }
         }
         else if (ch == '\'') {    //must be a string or character
@@ -120,20 +140,32 @@ int main()
                 }
                 word.push_back(ch);
                 if (endOfStr) {
-                    cout << "STRING : " << word << endl;
+                    if (word.length() == 3) {
+                        cout << "CHARACTER : " << word << endl;
+                        ofs << "CHARACTER : " << word << endl;
+                    }
+                    else {
+                        cout << "STRING : " << word << endl;
+                        ofs << "STRING : " << word << endl;
+                    }
                     break;
                 }
             }
             if (!endOfStr) {
                 cout << "TOKEN ERROR at line " << line << endl;
+                ofs << "TOKEN ERROR at line " << line << endl;
             }
             if (ch == '\n') {
                 line++;
             }
         }
         word = "";
+        if (ch == '\n') {
+            line++;
+        }
     }
     ifs.close();    //close input file
+    ofs.close();
 }
 string str_upper(string word) {
     string new_word = word;
@@ -142,3 +174,4 @@ string str_upper(string word) {
     }
     return new_word;
 }
+

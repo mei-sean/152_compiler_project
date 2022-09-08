@@ -13,7 +13,7 @@ public:
     bool isDigit(char ch);
     bool isSpecialSymbol(char ch);
     bool isDoubleSymbol(char ch);
-    bool isNumber(char*);
+    string convertToken(string token);
     string searchTable(string word);
 
 private:
@@ -23,8 +23,8 @@ private:
     "IN", "INLINE", "INTERFACE", "LABEL", "MOD", "NIL", "NOT", "OBJECT", "OF", "ON", "OPERATOR",
     "OR", "PACKED", "PROCEDURE", "PROGRAM", "RECORD", "REPEAT", "SET", "SHL", "SHR",
     "STRING", "THEN", "TO", "TRUE", "TYPE", "UNIT", "UNTIL", "USES", "VAR", "WHILE", "WITH",
-    "XOR", "INTEGER", "REAL", "IDENTIFIER", "PLUSOP", "MINUSOP", "MULTOP", "DIVOP", "ASSIGN",
-    "EQUAL", "NE", "LTEQ", "GTEQ", "LT", "GT", "PLUSEQUAL", "MINUSEQUAL", "MULTEQUAL",
-    "DIVEQUAL", "CARAT" }; //Table has IDENTIFIER spelled as INDENTIFIER?? mistake i dunno lmao
+    "XOR", "INTEGER", "REAL", "IDENTIFIER", "+", "-", "*", "/", ":=",
+    "=", "<>", "<=", ">=", "<", ">", "+=", "-=", "*=",
+    "/=", "^", ";", ",", "(", ")", "[", "]", "{", "}", "(*", "*)"}; //Table has IDENTIFIER spelled as INDENTIFIER?? mistake i dunno lmao
 };
 #endif
