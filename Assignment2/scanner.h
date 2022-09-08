@@ -3,18 +3,17 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
 using namespace std;
 
 class Scanner {
 public:
-    char nexttoken(istream& in);
+    char nexttoken(ifstream& in);
     bool isAlpha(char ch);
     bool isDigit(char ch);
     bool isSpecialSymbol(char ch);
     bool isDoubleSymbol(char ch);
     bool isNumber(char*);
-    bool isReservedWord(char*);
-    bool isMiscellaneousToken(char*);
     string searchTable(string word);
 
 private:

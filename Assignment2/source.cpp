@@ -12,6 +12,7 @@ int main()
     Scanner scan;
     ifstream ifs;
     string word;
+
     int line = 1;
     char ch;
     bool error;
@@ -21,6 +22,7 @@ int main()
         cout << "<ERROR> input file opening failure" << endl;
         exit(1);
     }
+    cout << "File opened properly";
     while (!ifs.eof()) {    //continue input file stream if not at end of file
         word = "";    //string to store current word
         error = false;     //beginning of scan no error
@@ -75,7 +77,7 @@ int main()
             if (hasDecimal && !invalid) {
                 cout << "REAL : " << word << endl;
             }
-            else if(!invalid) {
+            else if (!invalid) {
                 cout << "INTEGER : " << word << endl;
             }
             else {
