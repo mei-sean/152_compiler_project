@@ -131,9 +131,136 @@ string Scanner::convertToken(string token) {    //convert string into its keywor
     else if (token == "*)") {
         returnToken = "RCOMMENT";
     }
+    else if (token == ".") {
+        returnToken = "PERIOD";
+    }
     return returnToken;
 }
-
+void Scanner::callScanner(ifstream &ifs, ofstream &ofs) {    //convert string into its keyword
+    int line = 1;    //line to track which line we are in the input file
+    char ch;         //char to store next character in file
+    string word;
+    word = "";    //string to store current word
+    ch = this->nexttoken(ifs);    //scan the first character in file 
+    if (this->isAlpha(ch)) {    //check if char is a letter
+        //This block indicates word must be identifier or keyword
+        word.push_back(ch);    //append letter to current word
+        ch = this->nexttoken(ifs);    //get next character
+        while (ch != '\n' && ch != '\t' && ch != ' ') {
+            if (!this->isAlpha(ch)) {    //if not letter print error message
+                cout << "TOKEN ERROR at line " << line << ": Invalid  at " << ch << endl;
+                ofs << "TOKEN ERROR at line " << line << ": Invalid  at " << ch << endl;
+                break;
+            }
+            word.push_back(ch);
+            ch = this->nexttoken(ifs);
+        }
+        string token = (str_upper(word));    //convert token to all uppercase
+        if (this->searchTable(token) == token) {    //check if token matches any keyword in table
+            cout << token << " : " << word << endl;
+            ofs << token << " : " << word << endl;
+        }
+        else {
+            cout << "IDENTIFIER : " << word << endl;
+            ofs << "IDENTIFIER : " << word << endl;
+        }
+    }
+    else if (this->isDigit(ch)) {    //check if first char is a digit
+        bool hasDecimal = false;
+        bool invalid = false;
+        word.push_back(ch);
+        while (ch != '\n' && ch != '\t' && ch != ' ') {
+            ch = this->nexttoken(ifs);
+            if (ch == '.' && !hasDecimal) {    //if first decimal found
+                hasDecimal = true;
+                word.push_back(ch);
+            }
+            else if (ch == '.' && hasDecimal) {    //if another decimal is found
+                invalid = true;                    //number is invalid 
+            }
+            else {
+                word.push_back(ch);
+            }
+        }
+        if (!invalid) {
+            cout << "INTEGER : " << word << endl;
+            ofs << "INTEGER : " << word << endl;
+        }
+        else {
+            cout << "TOKEN ERROR at line " << line << ": Invalid number at " << word;
+            ofs << "TOKEN ERROR at line " << line << ": Invalid number at " << word;
+        }
+    }
+    else if (this->isSpecialSymbol(ch)) {    //check if first char is an operator
+        //This block indicates word must be a operator 
+        word.push_back(ch);    //append letter to current word 
+        while (ch != '\n' && ch != '\t' && ch != ' ') {    //while not end of word
+            if (this->isDoubleSymbol(ch)) {    //check if operator can have two characters
+                ch = this->nexttoken(ifs);
+                string tempWord = word;    //create two character operator
+                tempWord.push_back(ch);
+                string token = this->searchTable(tempWord);    //check if operator is in table
+                if (token != "") {    //if operator is in table
+                    cout << this->convertToken(token) << " : " << tempWord << endl;    //print the 2 character operator 
+                    ofs << this->convertToken(token) << " : " << tempWord << endl;
+                    word = "";
+                }
+                else {
+                    cout << this->convertToken(word) << " : " << word << endl;
+                    ofs << this->convertToken(word) << " : " << word << endl;
+                    word = "";
+                }
+            }
+            else {
+                string token = this->searchTable(word);
+                cout << this->convertToken(token) << " : " << word << endl;
+                ofs << this->convertToken(token) << " : " << word << endl;
+                word = "";
+            }
+            ch = this->nexttoken(ifs);
+            if (ch != ' ' && ch != '\n' && ch != '\t') {
+                word.push_back(ch);
+            }
+        }
+    }
+    else if (ch == '\'') {    //must be a string or character
+        word.push_back(ch);
+        bool endOfStr = false;
+        while (ch != '\n' && ch != '\t') {
+            ch = this->nexttoken(ifs);
+            if (ch == '\'') {
+                endOfStr = true;
+            }
+            word.push_back(ch);
+            if (endOfStr) {
+                if (word.length() == 3) {
+                    cout << "CHARACTER : " << word << endl;
+                    ofs << "CHARACTER : " << word << endl;
+                }
+                else {
+                    cout << "STRING : " << word << endl;
+                    ofs << "STRING : " << word << endl;
+                }
+                break;
+            }
+        }
+        if (!endOfStr) {
+            cout << "TOKEN ERROR at line " << line << endl;
+            ofs << "TOKEN ERROR at line " << line << endl;
+        }
+    }
+    word = "";
+    if (ch == '\n') {
+        line++;
+    }
+}
+string Scanner::str_upper(string word) {    //converts a string to all uppercase 
+    string new_word = word;
+    for (int i = 0; i < new_word.size(); i++) {
+        new_word.at(i) = toupper(new_word.at(i));
+    }
+    return new_word;
+}
 char Scanner::nexttoken(ifstream& in) {    //get next character in input stream from file
     char next_ch;
     in.get(next_ch);

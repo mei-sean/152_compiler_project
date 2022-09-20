@@ -15,6 +15,8 @@ public:
     bool isDoubleSymbol(char ch);        //Check if current character has two symbols
     string convertToken(string token);   //Convert a symbol to its abreviated name EX. + -> PLUSOP
     string searchTable(string word);     //Search table contained all reserved words and symbols
+    string str_upper(string word);
+    void callScanner(ifstream &ifs, ofstream &ofs);
 
 private:
     vector<string> table = { "AND", "ARRAY", "ASM", "BEGIN", "BREAK", "CASE",
@@ -25,6 +27,6 @@ private:
     "STRING", "THEN", "TO", "TRUE", "TYPE", "UNIT", "UNTIL", "USES", "VAR", "WHILE", "WITH",
     "XOR", "INTEGER", "REAL", "IDENTIFIER", "+", "-", "*", "/", ":=",
     "=", "<>", "<=", ">=", "<", ">", "+=", "-=", "*=",
-    "/=", "^", ";", ",", "(", ")", "[", "]", "{", "}", "(*", "*)"}; 
+    "/=", "^", ";", ",", "(", ")", "[", "]", "{", "}", "(*", "*)", "."};
 };
 #endif
