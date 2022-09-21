@@ -30,6 +30,7 @@ public:
 	int lineNumber;
 	string text;
 	long Lvalue;
+	int value;
 	int Dvalue;
 	string Svalue;
 	vector<Node*>children;
