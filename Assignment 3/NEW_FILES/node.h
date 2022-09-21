@@ -7,7 +7,7 @@ using namespace std;
 
 class Node {
 public:
-	string nodeType;
+	string nodeType; 
 	int lineNumber;
 	string text;
 	vector<Node*>children;
