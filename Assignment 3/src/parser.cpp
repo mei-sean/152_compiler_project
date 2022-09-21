@@ -1,13 +1,25 @@
 #include <iostream>
 #include <cstring>
-#include "parser.h"
-#include "node.h"
+#include "../NEW_FILES/parser.h"
+#include "../NEW_FILES/node.h"
 #include <fstream>
 using namespace std;
 
-Node parseProgram(){
+namespace frontend {
+    Node parseProgram(){
 
-}
+    }
 
-int priorityAssign(std::string operator_in){
+    int priorityAssign(std::string operator_in){
+    }
+
+
+
+    Node *Parser::parseCharacterConstant() {
+        Node * characterNode = new Node(CHARACTER_CONSTANT);
+        characterNode->value = currentToken->value;
+
+        currentToken = scanner->nexttoken(in); // This will consume the character
+        return characterNode;
+    }
 }
