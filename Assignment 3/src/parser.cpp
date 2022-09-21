@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include "parser.h"
+#include "node.h"
 #include <fstream>
 using namespace std;
 
