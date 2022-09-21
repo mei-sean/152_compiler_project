@@ -8,5 +8,5 @@ Scanner scan;    //instantiate scanner class
 
 Node* Parser::parseProgram() {
 	Node* program = new Node("PROGRAM");
-	currentToken  = 
+	return program;
 }

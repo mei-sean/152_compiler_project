@@ -9,7 +9,7 @@ bool Scanner::isSpecialSymbol(char ch) {
         ch == '/' || ch == ',' || ch == '.' || ch == ';' ||
         ch == ':=' || ch == '(' || ch == ')' || ch == '=' ||
         ch == '<' || ch == '>' || ch == '{' || ch == '}' ||
-        ch == '[' || ch == ']' || ch == '^')
+        ch == '[' || ch == ']' || ch == '^'|| ch == ':')
     {
         return true;
     }
@@ -102,7 +102,7 @@ string Scanner::convertToken(string token) {    //convert string into its keywor
         returnToken = "CARAT";
     }
     else if (token == ";") {
-        returnToken = "SEMICOLOR";
+        returnToken = "SEMICOLON";
     }
     else if (token == ",") {
         returnToken = "COMMA";
@@ -134,6 +134,9 @@ string Scanner::convertToken(string token) {    //convert string into its keywor
     else if (token == ".") {
         returnToken = "PERIOD";
     }
+    else if (token == ":") {
+        returnToken = "COLON";
+    }
     return returnToken;
 }
 void token::initToken(string tokenType, string tokenName, string tokenValue, int tokenLine) {
@@ -142,8 +145,8 @@ void token::initToken(string tokenType, string tokenName, string tokenValue, int
     this->tokenValue = tokenValue;
     this->tokenLine = tokenLine;
 }
+int line = 1;
 token Scanner::buildToken(ifstream& ifs) {
-    int line = 1;    //line to track which line we are in the input file
     char ch;         //char to store next character in file
     string word;
     token newToken;
@@ -156,6 +159,7 @@ token Scanner::buildToken(ifstream& ifs) {
         while (ch != '\n' && ch != '\t' && ch != ' ') {
             if (!this->isAlpha(ch)) {    //if not letter print error message
                 cout << "TOKEN ERROR at line " << line << ": Invalid  at " << ch << endl;
+                newToken.initToken(" ", " ", " ", line);
                 break;
             }
             word.push_back(ch);
@@ -163,11 +167,10 @@ token Scanner::buildToken(ifstream& ifs) {
         }
         string token = (str_upper(word));    //convert token to all uppercase
         if (this->searchTable(token) == token) {    //check if token matches any keyword in table
-            cout << token << " : " << word << endl;
+            newToken.initToken(token, word, " ", line);
         }
         else {
-            cout << "IDENTIFIER : " << word << endl;
-            newToken.initToken("IDENTIFIER", word, "", line);
+            newToken.initToken("IDENTIFIER", word, " ", line);
         }
     }
     else if (this->isDigit(ch)) {    //check if first char is a digit
@@ -182,6 +185,7 @@ token Scanner::buildToken(ifstream& ifs) {
             }
             else if (ch == '.' && hasDecimal) {    //if another decimal is found
                 invalid = true;                    //number is invalid 
+                word.push_back(ch);
             }
             else {
                 word.push_back(ch);
@@ -192,6 +196,7 @@ token Scanner::buildToken(ifstream& ifs) {
         }
         else {
             cout << "TOKEN ERROR at line " << line << ": Invalid number at " << word;
+            newToken.initToken(" ", " ", " ", line);
         }
     }
     else if (this->isSpecialSymbol(ch)) {    //check if first char is an operator
@@ -206,10 +211,12 @@ token Scanner::buildToken(ifstream& ifs) {
                 if (token != "") {    //if operator is in table
                     newToken.initToken(this->convertToken(token), tempWord, " ", line);
                     word = "";
+                    return newToken;
                 }
                 else {
-                    newToken.initToken(this->convertToken(word), word, "", line);
+                    newToken.initToken(this->convertToken(word), word, " ", line);
                     word = "";
+                    return newToken;
                 }
             }
             else {
@@ -244,6 +251,7 @@ token Scanner::buildToken(ifstream& ifs) {
         }
         if (!endOfStr) {
             cout << "TOKEN ERROR at line " << line << endl;
+            newToken.initToken(" ", " ", " ", line);
         }
     }
     word = "";

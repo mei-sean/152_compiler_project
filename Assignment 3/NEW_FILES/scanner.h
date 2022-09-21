@@ -8,9 +8,9 @@ using namespace std;
 
 class token {
 public:
-    string tokenType;
-    string tokenName;
-    string tokenValue;
+    string tokenType = " ";
+    string tokenName = " ";
+    string tokenValue = " ";
     int tokenLine = 0;
     void initToken(string tokenType, string tokenName, string tokenValue, int tokenLine);
 };
@@ -36,6 +36,6 @@ private:
     "STRING", "THEN", "TO", "TRUE", "TYPE", "UNIT", "UNTIL", "USES", "VAR", "WHILE", "WITH",
     "XOR", "INTEGER", "REAL", "IDENTIFIER", "+", "-", "*", "/", ":=",
     "=", "<>", "<=", ">=", "<", ">", "+=", "-=", "*=",
-    "/=", "^", ";", ",", "(", ")", "[", "]", "{", "}", "(*", "*)", "."};
+    "/=", "^", ";", ",", "(", ")", "[", "]", "{", "}", "(*", "*)", ".", ":"};
 };
 #endif
