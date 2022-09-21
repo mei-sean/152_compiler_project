@@ -24,8 +24,9 @@ static const string NodeTypes[] = {
 
 class Node {
 public:
+
 	NodeType type;
-	string nodeType;
+	string nodeType; 
 	int lineNumber;
 	string text;
 	long Lvalue;

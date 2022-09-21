@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "scanner.h"
+
 using namespace std;
 int main()
 {
@@ -24,10 +25,22 @@ int main()
         cout << "<ERROR> output file opening failure" << endl;
         exit(1);
     }
+    token newToken;
     while (!ifs.eof()) {    //continue input file stream if not at end of file
-        scan.callScanner(ifs, ofs);
+        newToken = scan.buildToken(ifs);
+        if (newToken.tokenValue == " " && newToken.tokenType != " ") {
+            cout << newToken.tokenType << " : " << newToken.tokenName << endl;
+        }
+        else if(newToken.tokenValue != " ") {
+            cout << newToken.tokenType << " : " << newToken.tokenValue << endl;
+        }
+        else {
+            //do nothing
+        }
     }
     ifs.close();    //close input file
     ofs.close();
+
+    //scan.callScanner(ifs, ofs);  in while loop
 }
 
