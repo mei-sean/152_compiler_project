@@ -145,8 +145,7 @@ void token::initToken(string tokenType, string tokenName, string tokenValue, int
     this->tokenValue = tokenValue;
     this->tokenLine = tokenLine;
 }
-int line = 1;
-token Scanner::buildToken(ifstream& ifs) {
+token Scanner::nextToken(ifstream& ifs) {
     char ch;         //char to store next character in file
     string word;
     token newToken;
