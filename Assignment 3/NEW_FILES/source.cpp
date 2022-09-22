@@ -27,7 +27,7 @@ int main()
     }
     token newToken;
     while (!ifs.eof()) {    //continue input file stream if not at end of file
-        newToken = scan.buildToken(ifs);
+        newToken = scan.nextToken(ifs);
         if (newToken.tokenValue == " " && newToken.tokenType != " ") {
             cout << newToken.tokenType << " : " << newToken.tokenName << endl;
         }
