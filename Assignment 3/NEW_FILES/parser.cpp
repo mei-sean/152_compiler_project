@@ -13,6 +13,116 @@ Node parseProgram(){
 	Node* program = new Node("PROGRAM");
 	currentToken  = 
 }
+Node *Parser::parseWhileStatement(){
+	Node *newNode = new Node("LOOP"); //create node for while loop
+	currentToken = scanner->nexttoken(in); //move to next token
+
+	Node *test = newNode("TEST"); //create node for tests
+	lineNumber = currentToken.tokenLine;//FIX: maybe need setLineNumber funct?
+	test->lineNumber = lineNumber; //FIX: need get lineNumber
+
+	if(currentToken.tokenType == "DO"){
+		newNode->adopt(parseCompoundStatement());
+	}
+	else{
+		newNode->adopt(parseStatement());
+	}
+	return newNode;
+
+}
+
+Node *Parser::parseForStatement(){
+
+
+}
+
+Node *Parser::parseIfStatement(){
+	Node* newNode = new Node("IF");
+	int lineNum = currentToken.tokenLine; //FIX: might need setLineNumber funct?
+	currentToken =  scanner->nexttoken(in);
+
+	newNode->adopt(parseExpression());
+
+if(currentToken.tokenType == "THEN"){
+	currentToken = scanner->nexttoken(in);
+}
+else{
+	syntaxError("Expected THEN");
+}
+if(currentToken.tokenType == "BEGIN"){
+	newNode->adopt(parseCompoundStatement());
+}
+else{
+	newNode->adopt(parseStatement());
+}
+if(currentToken.tokenType == "ELSE"){
+	currentToken = scanner->nexttoken();
+	if (currentToken.tokenType == "BEGIN"){
+		newNode->adopt(parseCompoundStatement());
+	}
+	else{
+		newNode->adopt(parseStatement());
+	}
+}
+return newNode;
+}
+
+Node *Parser::parseWriteArguments(){
+	Node *writeNode = new Node("WRITE");
+	currentToken = scanner->nexttoken();
+
+	parseWriteArguments(writeNode);
+	if(writeNode->children.size() == 0){ //no children
+		syntaxError("Invalid WRITE statement");
+	}
+}
+
+Node *Parser::parseWritelnStatement(){
+	Node *writelnNode = new Node("WRITELN");
+	currentToken = scanner->nextToken();
+
+	if (currentToken.tokenType == "LPAREN"){
+		parseWriteArguments(writelnNode); //goes through WriteArgument if statements to parse
+	}
+	return writelnNode;
+
+}
+
+void Parser::parseWriteArguments(Node *node){
+	bool argument = false; //use to check argument presence
+	if (currentToken.tokenType == "LPAREN"){
+		currentToken = scanner->nextToken(in);
+	}
+	else syntaxError("Missing (");
+	if(currentToken.tokenType == "IDENTIFIER"){
+		node->adopt(parseVariable());
+		argument = true;
+	}
+	else if(currentToken.tokenType == "STRING"){
+		node->adopt(parseStringConstant());
+		argument = true;
+	}
+	else if (currentToken.tokenType == "CHARACTER"){
+		node->adopt(parseCharacterConstant());
+	}
+	else syntaxError("Invalid WRITE or WRITELN");
+
+	if(argument){
+		if(currentToken.tokenType == "COLON"){
+			currentToken = scanner->nexttoken(in); //get rid of the colon and read next
+			if (currentToken.tokenType == "INTEGER"){
+				node->adopt(parseIntegerConstant()); //if integer found then parse sole integer
+				if(currentToken.tokenType == "COLON"){//repeat
+					currentToken.tokenType = scanner->nextToken(in);
+					if(currentToken.tokenType == "INTEGER"){
+						node->adopt(parseIntegerConstant());
+					}
+					else syntaxError("INTEGER")
+				}
+			}
+		}
+	}
+}
 
 Node *Parser::parsefactor(){
 	Node* factor = nullptr;
@@ -41,9 +151,9 @@ Node *Parser::parsefactor(){
 	else syntaxError("Unexpected token received");
 	if (negativeSign != nullptr){ //if negative sign exists
 		negativeSign->adopt(factor); //add the rest of the factor to the negative symbol
-		return negativeSign; //return the combined node
+		return negativeSign; //return the full term
 	}
-	return factor; //return "positive" factor
+	return factor; //return "positive" term
 }
 Node *Parser::parseVariable(){
 	string variableName = currentToken.tokenName; //store name of token into variable
