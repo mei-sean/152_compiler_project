@@ -145,13 +145,15 @@ void token::initToken(string tokenType, string tokenName, string tokenValue, int
     this->tokenValue = tokenValue;
     this->tokenLine = tokenLine;
 }
-int line = 1;
-token Scanner::buildToken(ifstream& ifs) {
+token Scanner::nextToken(ifstream& ifs) {
     char ch;         //char to store next character in file
     string word;
     token newToken;
     word = "";    //string to store current word
     ch = this->nexttoken(ifs);    //scan the first character in file 
+    if (ch == '\n') {
+        newToken.initToken("END_OF_FILE", " ", " ", line);
+    }
     if (this->isAlpha(ch)) {    //check if char is a letter
         //This block indicates word must be identifier or keyword
         word.push_back(ch);    //append letter to current word

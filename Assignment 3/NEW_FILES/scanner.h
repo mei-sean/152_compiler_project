@@ -16,6 +16,7 @@ public:
 };
 class Scanner {
 public:
+    int line = 1;
     char nexttoken(ifstream& in);        //Retreive next character from input file stream
     bool isAlpha(char ch);               //Check if current character is a letter
     bool isDigit(char ch);               //Check if current character is a digit
@@ -25,7 +26,7 @@ public:
     string searchTable(string word);     //Search table contained all reserved words and symbols
     string str_upper(string word);
     void callScanner(ifstream& ifs, ofstream& ofs);
-    token buildToken(ifstream& ifs);
+    token nextToken(ifstream& ifs);
 
 private:
     vector<string> table = { "AND", "ARRAY", "ASM", "BEGIN", "BREAK", "CASE",
