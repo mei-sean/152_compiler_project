@@ -108,7 +108,55 @@ Node* Parser::parseStatement() {
 	}
 	return statementNode;
 }
+Node *Parser::parseAssignmentStatement() {
+	Node *assignmentNode = new Node("ASSIGN"); // Create the assign node. 
+	Node *lhsNode = new Node("VARIABLE"); // Adopt the variable node as the first child.
+	string variableName = currentToken->tokenName;
+	symtabvariableId = symtab->enter(tolower(variableName));
 
+	lhsNode->text = variableName;
+	assignmentNode->adopt(lhsNode);
+
+	currentToken = scan.nextToken(in);  // consume the LHS variable;
+
+	if (currentToken->tokenType == "COLON_EQUALS")
+	{
+		currentToken = scan.nextToken(in);  // consume :=
+	}
+	else syntaxError("Missing :=");
+
+	// Adopt expression node as the second child. 
+	Node rhsNode = parseExpression();
+	assignmentNode->adopt(rhsNode);
+
+	return assignmentNode;
+}
+
+NodeParser::parseRepeatStatement() {
+	// Parses the repeat token. 
+	Node loopNode = new Node("LOOP");
+	currentToken = scan->nextToken(in);  // consume REPEAT
+
+	parseStatementList(loopNode, "UNTIL", in);
+
+	if (currentToken->tokenType == "UNTIL")
+	{
+		// Will adopt the test expression node. 
+		NodetestNode = new Node("TEST");
+		lineNumber = currentToken.lineNumber;
+		testNode->lineNumber = lineNumber;
+		currentToken = scan->nextToken(in);  // consume UNTIL
+
+		testNode->adopt(parseExpression());
+
+		// Adopts the TEST node as the final child. 
+		loopNode->adopt(testNode);
+	}
+	else syntaxError("Expecting UNTIL");
+
+	return loopNode;
+
+}
 Node* Parser::parseForStatement(ifstream& ifs) {
 	Node* compoundNode = new Node("COMPOUND");
 	Node* newValue = new Node("INTEGER_CONSTANT");
@@ -120,7 +168,7 @@ Node* Parser::parseForStatement(ifstream& ifs) {
 		oldVariable->text = currentToken->tokenValue;
 		string variableName = currentToken->tokenName;
 
-		compoundNode->adpot(parseAssignmentStatement());
+		compoundNode->adopt(parseAssignmentStatement());
 		symtabentry = symtab.symbolTableLookup(variableName);
 	}
 	else {
@@ -172,17 +220,17 @@ Node* Parser::parseForStatement(ifstream& ifs) {
 		assignNode->adopt(addNode);
 	}
 }
-/*
+
 Node* Parser::parseWhileStatement(ifstream& ifs) {
 	Node* newNode = new Node("LOOP"); //create node for while loop
-	currentToken = scan->nexttoken(in); //move to next token
+	*currentToken = scan.nextToken(ifs); //move to next token
 
-	Node* test = newNode("TEST"); //create node for tests
-	lineNumber = currentToken.tokenLine;//FIX: maybe need setLineNumber funct?
+	Node* test = new Node("TEST"); //create node for tests
+	lineNumber = currentToken->tokenLine;//FIX: maybe need setLineNumber funct?
 	test->lineNumber = lineNumber; //FIX: need get lineNumber
 
-	if (currentToken.tokenType == "DO") {
-		newNode->adopt(parseCompoundStatement());
+	if (currentToken->tokenType == "DO") {
+		newNode->adopt(parseCompoundStatement(ifs));
 	}
 	else {
 		newNode->adopt(parseStatement());
@@ -190,31 +238,30 @@ Node* Parser::parseWhileStatement(ifstream& ifs) {
 	return newNode;
 
 }
-*/
-/*
+
 Node* Parser::parseIfStatement(ifstream& ifs) {
 	Node* newNode = new Node("IF");
-	int lineNum = currentToken.tokenLine; //FIX: might need setLineNumber funct?
-	currentToken = scan->nexttoken(ifs);
+	int lineNum = currentToken->tokenLine; //FIX: might need setLineNumber funct?
+	*currentToken = scan.nextToken(ifs);
 
-	newNode->adopt(parseExpression());
+	newNode->adopt(parseExpression(ifs));
 
-	if (currentToken.tokenType == "THEN") {
-		currentToken = scanner->nexttoken(in);
+	if (currentToken->tokenType == "THEN") {
+		*currentToken = scan.nextToken(ifs);
 	}
 	else {
 		syntaxError("Expected THEN");
 	}
-	if (currentToken.tokenType == "BEGIN") {
-		newNode->adopt(parseCompoundStatement());
+	if (currentToken->tokenType == "BEGIN") {
+		newNode->adopt(parseCompoundStatement(ifs));
 	}
 	else {
 		newNode->adopt(parseStatement());
 	}
-	if (currentToken.tokenType == "ELSE") {
-		currentToken = scanner->nexttoken();
-		if (currentToken.tokenType == "BEGIN") {
-			newNode->adopt(parseCompoundStatement());
+	if (currentToken->tokenType == "ELSE") {
+		*currentToken = scan.nextToken(ifs);
+		if (currentToken->tokenType == "BEGIN") {
+			newNode->adopt(parseCompoundStatement(ifs));
 		}
 		else {
 			newNode->adopt(parseStatement());
@@ -223,89 +270,72 @@ Node* Parser::parseIfStatement(ifstream& ifs) {
 	return newNode;
 }
 
-Node* Parser::parseWriteArguments() {
-	Node* writeNode = new Node("WRITE");
-	currentToken = scanner->nexttoken();
-
-	parseWriteArguments(writeNode);
-	if (writeNode->children.size() == 0) { //no children
-		syntaxError("Invalid WRITE statement");
-	}
-}
-
-Node* Parser::parseWritelnStatement() {
+Node* Parser::parseWritelnStatement(ifstream &ifs) {
 	Node* writelnNode = new Node("WRITELN");
-	currentToken = scanner->nextToken();
+	*currentToken = scan.nextToken(ifs);
 
-	if (currentToken.tokenType == "LPAREN") {
+	if (currentToken->tokenType == "LPAREN") {
 		parseWriteArguments(writelnNode); //goes through WriteArgument if statements to parse
 	}
 	return writelnNode;
 
 }
-
-void Parser::parseWriteArguments(Node* node) {
+void Parser::parseWriteArguments(Node* node, ifstream& ifs) {
 	bool argument = false; //use to check argument presence
-	if (currentToken.tokenType == "LPAREN") {
-		currentToken = scanner->nextToken(in);
+	if (currentToken->tokenType == "LPAREN") {
+		*currentToken = scan.nextToken(ifs);
 	}
 	else syntaxError("Missing (");
-	if (currentToken.tokenType == "IDENTIFIER") {
-		node->adopt(parseVariable());
+	if (currentToken->tokenType == "IDENTIFIER") {
+		node->adopt(parseVariable(ifs));
 		argument = true;
 	}
-	else if (currentToken.tokenType == "STRING") {
-		node->adopt(parseStringConstant());
+	else if (currentToken->tokenType == "STRING") {
+		node->adopt(parseStringConstant(ifs));
 		argument = true;
 	}
-	else if (currentToken.tokenType == "CHARACTER") {
-		node->adopt(parseCharacterConstant());
+	else if (currentToken->tokenType == "CHARACTER") {
+		node->adopt(parseCharacterConstant(ifs));
 	}
 	else syntaxError("Invalid WRITE or WRITELN");
 
 	if (argument) {
-		if (currentToken.tokenType == "COLON") {
-			currentToken = scanner->nexttoken(in); //get rid of the colon and read next
-			if (currentToken.tokenType == "INTEGER") {
-				node->adopt(parseIntegerConstant()); //if integer found then parse sole integer
-				if (currentToken.tokenType == "COLON") {//repeat
-					currentToken.tokenType = scanner->nextToken(in);
-					if (currentToken.tokenType == "INTEGER") {
-						node->adopt(parseIntegerConstant());
+		if (currentToken->tokenType == "COLON") {
+			*currentToken = scan.nextToken(ifs);//get rid of the colon and read next
+			if (currentToken->tokenType == "INTEGER") {
+				node->adopt(parseIntegerConstant(ifs)); //if integer found then parse sole integer
+				if (currentToken->tokenType == "COLON") {//repeat
+					*currentToken = scan.nextToken(ifs);
+					if (currentToken->tokenType == "INTEGER") {
+						node->adopt(parseIntegerConstant(ifs));
 					}
-					else syntaxError("INTEGER")
+					else syntaxError("INTEGER");
 				}
 			}
 		}
 	}
 }
-*/
-Node* Parser::parseTerm() {
-	Node* termNode = parseFactor();
-	while()
-}
-/*
-Node* Parser::parsefactor() {
+Node* Parser::parsefactor(ifstream &ifs) {
 	Node* factor = nullptr;
 	Node* negativeSign = nullptr;
-	if (currentToken.tokenType == "MINUS") { //looking for minus signs for negative integers
+	if (currentToken->tokenType == "MINUS") { //looking for minus signs for negative integers
 		negativeSign = new Node("NEGATE"); //store
-		currentToken = scanner->nexttoken(in); //move to next token
+		*currentToken = scan.nextToken(ifs); //move to next token
 	}
-	if (currentToken.tokenType == "IDENTIFIER") { //check if factor type is an identifier
-		factor = parseVariable();
+	if (currentToken->tokenType == "IDENTIFIER") { //check if factor type is an identifier
+		factor = parseVariable(ifs);
 	}
-	else if (currentToken.tokenType == "INTEGER") {//check if factor is an integer
-		factor = parseIntegerConstant();
+	else if (currentToken->tokenType == "INTEGER") {//check if factor is an integer
+		factor = parseIntegerConstant(ifs);
 	}
-	else if (currentToken.tokenType == "REAL") {
-		factor = parseRealConstant();
+	else if (currentToken->tokenType == "REAL") {
+		factor = parseRealConstant(ifs);
 	}
-	else if (currentToken.tokenType == "LPAREN") {
-		currentToken = scanner->nexttoken(in);
+	else if (currentToken->tokenType == "LPAREN") {
+		*currentToken = scan.nextToken(ifs);
 		//factor = parseExpression(); //uncomment when parseExpression() exists
-		if (currentToken.tokenType == "RPAREN") {
-			currentToken = scanner->nexttoken(in);
+		if (currentToken->tokenType == "RPAREN") {
+			*currentToken = scan.nextToken(ifs);
 		}
 		else syntaxError("Expected )"); //missing end paren
 	}
@@ -316,14 +346,17 @@ Node* Parser::parsefactor() {
 	}
 	return factor; //return "positive" term
 }
-Node* Parser::parseVariable() {
-	string variableName = currentToken.tokenName; //store name of token into variable
+Node* Parser::parseVariable(ifstream& ifs) {
+	string variableName = currentToken->tokenName; //store name of token into variable
 	//check variable name for valid symtab token and call syntax or semantic error if one exists
-	entry* vID = Symboltable::symbolTableLookup(variableName); //FIX: creating entry variable to store the existence of entry or not
+	if (symtab.symbolTableLookup(variableName) == "") {
+		semanticError("Undeclared identifier");
+	}
+
 	Node* newnode = new Node("VARIABLE"); //set type within new node
 	newnode->text = variableName; //storing the name into the node's text
 
-	currentToken = scanner->nexttoken(in); //change this to something that actually works
+	*currentToken = scan.nextToken(ifs); //change this to something that actually works
 	return newnode;
 
 }
@@ -333,44 +366,43 @@ Node* Parser::parseIntegerConstant(ifstream &ifs)
 	// The current token should now be a number.
 
 	Node* integerNode = new Node("INTEGER_CONSTANT");
-	integerNode->value = currentToken->tokenValue;
+	integerNode->text = currentToken->tokenValue;
 
-	currentToken = scanner->nexttoken(in);  // consume the number
+	*currentToken = scan.nextToken(ifs);  // consume the number
 	return integerNode;
 }
 
-Node* Parser::parseRealConstant()
+Node* Parser::parseRealConstant(ifstream& ifs)
 {
 	// The current token should now be a number.
 
-	Node* realNode = new Node(REAL_CONSTANT);
+	Node* realNode = new Node("REAL_CONSTANT");
 	realNode->text = currentToken->tokenValue;
 
-	currentToken = scanner->nexttoken(in);  // consume the number
+	*currentToken = scan.nextToken(ifs);  // consume the number
 	return realNode;
 }
 
-Node* Parser::parseStringConstant()
+Node* Parser::parseStringConstant(ifstream& ifs)
 {
-	Node* stringNode = new Node(STRING_CONSTANT);
-	stringNode->value = currentToken;
+	Node* stringNode = new Node("STRING_CONSTANT");
+	stringNode->text = currentToken->tokenName;
 
-	currentToken = scanner->nexttoken(in);  // This will consume the string
+	*currentToken = scan.nextToken(ifs);  // This will consume the string
 	return stringNode;
 }
 
-Node* Parser::parseCharacterConstant() {
-	Node* characterNode = new Node(CHARACTER_CONSTANT);
-	characterNode->value = currentToken;
+Node* Parser::parseCharacterConstant(ifstream& ifs) {
+	Node* characterNode = new Node("CHARACTER_CONSTANT");
+	characterNode->text = currentToken->tokenName;
 
-	currentToken = scanner->nexttoken(in); // This will consume the character
+	*currentToken = scan.nextToken(ifs); // This will consume the character
 	return characterNode;
 }
-void Parser::semanticError(string data) {
+void Parser::semanticError(string message) {
+	cout << "SEMANTIC ERROR at line " << currentToken->tokenLine << message << " at " << currentToken->tokenName << endl;
 	errorCount++;
-	int errorNum = getErrorCount();
-	printf("ERROR #%d! Semantic Error found on line %d. %s at %s\n", errorNum, currentToken.tokenLine, data, currentToken.tokenName, currentToken.tokenType);
-}*/
+}
 void Parser::syntaxError(string message) {
 	cout << "SYNTAX ERROR at line " << currentToken->tokenLine << message << " at " << currentToken->tokenName << endl;
 	errorCount++;

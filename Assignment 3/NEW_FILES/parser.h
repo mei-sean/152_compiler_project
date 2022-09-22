@@ -11,13 +11,15 @@ private:
 	Symboltable symtab;
 	Scanner scan;
 	int lineNumber;
-	int errorCount;
+	int errorCount = 0;
 	token* currentToken;
 	vector<string>statementStarters = { "BEGIN", "IDENTIFIER", "REPEAT", "WHILE",
 	"WRITE", "WRITELN" };
 	vector<string>statementFollowers = { "SEMICOLON", "END", "UNTIL", "END_OF_FILE", "DO", "OF"};
-	vector<string>operators = { "=", "!=", "<", "<=", ">", ">=" };
-	vector<string>boolOperators = {"!", "&", "|"};
+	vector<string>operators = { "EQUALS", "NOT_EQUALS", "LESS_THAN", "LESS_THAN_EQUALS", "GREATER_THAN", "GREATER_THAN_EQUALS" };
+	vector<string>boolOperators = {"NOT", "AND", "OR"};
+	vector<string>simpleExpressionOperators = { "PLUS", "MINUS" };
+	vector<string>termOperators = { "STAR", "SLASH", "DIV", "MOD" };
 public:
 	Node* parseProgram(ifstream& ifs);
 	Node* parseCompoundStatement(ifstream& ifs);
@@ -25,18 +27,20 @@ public:
 	Node* parseStatement();
 	Node* parseForStatement(ifstream& ifs);
 	Node* parseWhileStatement(ifstream& ifs);
-	Node* parseIfStatement();
-	Node* parseWriteArguments();
-	Node* parseWritelnStatement();
+	Node* parseIfStatement(ifstream& ifs);
+	void parseWriteArguments(Node* node, ifstream& ifs);
+	Node* parseWritelnStatement(ifstream& ifs);
 	void parseWriteArguments(Node* node);
 	Node* parseSimpleExpression();
 	Node* parseTerm();
-	Node* parsefactor();
-	Node* parseVariable();
-	Node* parseIntegerConstant();
-	Node* parseRealConstant();
+	Node* parsefactor(ifstream &ifs);
+	Node* parseVariable(ifstream &ifs);
+	Node* parseIntegerConstant(ifstream &ifs);
+	Node* parseCharacterConstant(ifstream& ifs);
+	Node* parseStringConstant(ifstream& ifs);
+	Node* parseRealConstant(ifstream &ifs);
 
-	void syntaxError(string data);
+	void semanticError(string message);
 	void syntaxError(string message);
 	string searchVector(vector<string>myVector, string target);
 
