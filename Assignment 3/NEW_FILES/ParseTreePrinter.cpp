@@ -1,8 +1,10 @@
 #include <iostream>
 #include "ParseTreePrinter.h"
+#include "node.h"
+#include <fstream>
 using namespace std;
 string ParseTreePrinter::indentSize = "      "; // Tab. 
-void ParseTreePrinter::print(Node* node) {
+void ParseTreePrinter::print(Node* node, ofstream& ofs) {
     line = line + indent;
     line += "<" + node->nodeType; // Opening for the xml format. 
 
@@ -18,23 +20,23 @@ void ParseTreePrinter::print(Node* node) {
     if (node->children.size() > 0) {
         // Print the children nodes. 
         line += ">";
-        OutputLine();
-        printChildren(node->children);
+        OutputLine(ofs);
+        printChildren(node->children, ofs);
         line += indent;
         line += "</" + node->nodeType + ">";
     }
     else line += " />"; // Closing tag. 
-    OutputLine();
+    OutputLine(ofs);
 }
 
-void ParseTreePrinter::printChildren(vector<Node*> children) {
+void ParseTreePrinter::printChildren(vector<Node*> children, ofstream& ofs) {
     // Will print all the children nodes of a given node in the vector. 
     string indentation = indent;
     indent = indent + indentSize;
-    for (Node* child : children) print(child);
+    for (Node* child : children) print(child, ofs);
     indent = indentation; // Save the indentation. 
 }
-void ParseTreePrinter::OutputLine() {
+void ParseTreePrinter::OutputLine(ofstream& ofs) {
     // Only outputs a line for xml format. 
     cout << line << endl;
     line = "";

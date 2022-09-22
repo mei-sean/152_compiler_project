@@ -14,8 +14,8 @@ private:
 
 public:
     ParseTreePrinter() : indent(""), line("") {}; // ParseTreePrinter function with definitions of indent and line variables. 
-    void print(Node*); // Print the tree. Will take the root node as the parameter. 
-    void printChildren(vector<Node*>); // Print the children of a given node. 
+    void print(Node*, ofstream& ofs); // Print the tree. Will take the root node as the parameter. 
+    void printChildren(vector<Node*>, ofstream& ofs); // Print the children of a given node. 
     void printOutputLine(); // Print an output line. 
-    void OutputLine(); // Print an output line. 
+    void OutputLine(ofstream& ofs); // Print an output line. 
 };

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "parser.h"
 #include "node.h"
+#include "parseTreePrinter.h"
 #include "symboltable.h"
 #include "scanner.h"
 #include <fstream>
@@ -39,8 +40,8 @@ Node* Parser::parseProgram(ifstream& ifs) {
 	programNode->adopt(parseCompoundStatement(ifs));
 	if (currentToken->tokenType == "SEMICOLON") {
 		syntaxError("Expecting .");
-		return programNode;
 	}
+	return programNode;
 }
 Node* Parser::parseCompoundStatement(ifstream& ifs) {
 	Node* compoundNode = new Node("COMPOUND");
@@ -58,7 +59,7 @@ Node* Parser::parseCompoundStatement(ifstream& ifs) {
 
 void Parser::parseStatementList(Node* parentNode, string terminalType, ifstream &ifs) {
 	while ((currentToken->tokenType!=terminalType) && (currentToken->tokenType != "END_OF_FILE")) {
-		Node* statementNode = parseStatement();
+		Node* statementNode = parseStatement(ifs);
 		if (statementNode != nullptr) {
 			parentNode->adopt(statementNode);
 		}
@@ -69,33 +70,33 @@ void Parser::parseStatementList(Node* parentNode, string terminalType, ifstream 
 		}
 	}
 }
-Node* Parser::parseStatement() {
+Node* Parser::parseStatement(ifstream& ifs) {
 	Node* statementNode = nullptr;
 	int saveLineNumber = currentToken->tokenLine;
 
 	if (currentToken->tokenType == "IDENTIFIER") {
-		statementNode = parseAssignmentStatement();
+		statementNode = parseAssignmentStatement(ifs);
 	}
 	else if(currentToken->tokenType == "BEGIN") {
-		statementNode = parseCompoundStatement();
+		statementNode = parseCompoundStatement(ifs);
 	}
 	else if (currentToken->tokenType == "REPEAT") {
-		statementNode = parseRepeatStatement();
+		statementNode = parseRepeatStatement(ifs);
 	}
 	else if (currentToken->tokenType == "WHILE") {
-		statementNode = parseWhileStatement();
+		statementNode = parseWhileStatement(ifs);
 	}
 	else if (currentToken->tokenType == "IF") {
-		statementNode = parseIfStatement();
+		statementNode = parseIfStatement(ifs);
 	}
 	else if (currentToken->tokenType == "FOR") {
-		statementNode = parseForStatement();
+		statementNode = parseForStatement(ifs);
 	}
 	else if (currentToken->tokenType == "WRITE") {
-		statementNode = parseWriteStatement();
+		statementNode = parseWriteStatement(ifs);
 	}
 	else if (currentToken->tokenType == "WRITELN") {
-		parseWritelnStatement();
+		parseWritelnStatement(ifs);
 	}
 	else if (currentToken->tokenType == "SEMICOLON") {
 		statementNode = nullptr;
@@ -108,46 +109,54 @@ Node* Parser::parseStatement() {
 	}
 	return statementNode;
 }
-Node *Parser::parseAssignmentStatement() {
+Node* Parser::parseWriteStatement(ifstream& ifs) {
+	Node* writeNode = new Node("WRITE");
+	*currentToken = scan.nextToken(ifs);
+	parseWriteArguments(writeNode, ifs);
+	if (writeNode->children.size() == 0) {
+		syntaxError("Invalid WRITE statement");
+	}
+	return writeNode;
+}
+Node *Parser::parseAssignmentStatement(ifstream& ifs) {
 	Node *assignmentNode = new Node("ASSIGN"); // Create the assign node. 
 	Node *lhsNode = new Node("VARIABLE"); // Adopt the variable node as the first child.
 	string variableName = currentToken->tokenName;
-	symtabvariableId = symtab->enter(tolower(variableName));
 
 	lhsNode->text = variableName;
 	assignmentNode->adopt(lhsNode);
 
-	currentToken = scan.nextToken(in);  // consume the LHS variable;
+	*currentToken = scan.nextToken(ifs);  // consume the LHS variable;
 
 	if (currentToken->tokenType == "COLON_EQUALS")
 	{
-		currentToken = scan.nextToken(in);  // consume :=
+		*currentToken = scan.nextToken(ifs);  // consume :=
 	}
 	else syntaxError("Missing :=");
 
 	// Adopt expression node as the second child. 
-	Node rhsNode = parseExpression();
+	Node *rhsNode = parseExpression(ifs);
 	assignmentNode->adopt(rhsNode);
 
 	return assignmentNode;
 }
 
-NodeParser::parseRepeatStatement() {
+Node *Parser::parseRepeatStatement(ifstream& ifs) {
 	// Parses the repeat token. 
-	Node loopNode = new Node("LOOP");
-	currentToken = scan->nextToken(in);  // consume REPEAT
+	Node *loopNode = new Node("LOOP");
+	*currentToken = scan.nextToken(ifs);  // consume REPEAT
 
-	parseStatementList(loopNode, "UNTIL", in);
+	parseStatementList(loopNode, "UNTIL", ifs);
 
 	if (currentToken->tokenType == "UNTIL")
 	{
 		// Will adopt the test expression node. 
-		NodetestNode = new Node("TEST");
-		lineNumber = currentToken.lineNumber;
+		Node *testNode = new Node("TEST");
+		lineNumber = currentToken->tokenLine;
 		testNode->lineNumber = lineNumber;
-		currentToken = scan->nextToken(in);  // consume UNTIL
+		*currentToken = scan.nextToken(ifs);  // consume UNTIL
 
-		testNode->adopt(parseExpression());
+		testNode->adopt(parseExpression(ifs));
 
 		// Adopts the TEST node as the final child. 
 		loopNode->adopt(testNode);
@@ -168,7 +177,7 @@ Node* Parser::parseForStatement(ifstream& ifs) {
 		oldVariable->text = currentToken->tokenValue;
 		string variableName = currentToken->tokenName;
 
-		compoundNode->adopt(parseAssignmentStatement());
+		compoundNode->adopt(parseAssignmentStatement(ifs));
 		symtabentry = symtab.symbolTableLookup(variableName);
 	}
 	else {
@@ -205,7 +214,7 @@ Node* Parser::parseForStatement(ifstream& ifs) {
 
 		*currentToken = scan.nextToken(ifs);
 
-		loopNode->adopt(parseStatement());
+		loopNode->adopt(parseStatement(ifs));
 		addNode->adopt(oldVariable);
 
 		int constant = 1;
@@ -219,6 +228,7 @@ Node* Parser::parseForStatement(ifstream& ifs) {
 		loopNode->adopt(assignNode);
 		assignNode->adopt(addNode);
 	}
+	return compoundNode;
 }
 
 Node* Parser::parseWhileStatement(ifstream& ifs) {
@@ -233,7 +243,7 @@ Node* Parser::parseWhileStatement(ifstream& ifs) {
 		newNode->adopt(parseCompoundStatement(ifs));
 	}
 	else {
-		newNode->adopt(parseStatement());
+		newNode->adopt(parseStatement(ifs));
 	}
 	return newNode;
 
@@ -256,7 +266,7 @@ Node* Parser::parseIfStatement(ifstream& ifs) {
 		newNode->adopt(parseCompoundStatement(ifs));
 	}
 	else {
-		newNode->adopt(parseStatement());
+		newNode->adopt(parseStatement(ifs));
 	}
 	if (currentToken->tokenType == "ELSE") {
 		*currentToken = scan.nextToken(ifs);
@@ -264,7 +274,7 @@ Node* Parser::parseIfStatement(ifstream& ifs) {
 			newNode->adopt(parseCompoundStatement(ifs));
 		}
 		else {
-			newNode->adopt(parseStatement());
+			newNode->adopt(parseStatement(ifs));
 		}
 	}
 	return newNode;
@@ -275,7 +285,7 @@ Node* Parser::parseWritelnStatement(ifstream &ifs) {
 	*currentToken = scan.nextToken(ifs);
 
 	if (currentToken->tokenType == "LPAREN") {
-		parseWriteArguments(writelnNode); //goes through WriteArgument if statements to parse
+		parseWriteArguments(writelnNode, ifs); //goes through WriteArgument if statements to parse
 	}
 	return writelnNode;
 
@@ -315,7 +325,90 @@ void Parser::parseWriteArguments(Node* node, ifstream& ifs) {
 		}
 	}
 }
-Node* Parser::parsefactor(ifstream &ifs) {
+Node* Parser::parseExpression(ifstream& ifs) {
+	Node* expressionNode = parseSimpleExpression(ifs);
+	Node* opNode = new Node("");
+	while ((findVector(operators, currentToken->tokenType) || 
+		(findVector(boolOperators, currentToken->tokenType)))){
+		if (currentToken->tokenType == "EQUALS") {
+			opNode->nodeType = "EQ";
+		}
+		else if (currentToken->tokenType == "NOT_EQUALS") {
+			opNode->nodeType = "NEQ";
+		}
+		else if (currentToken->tokenType == "LESS_THAN") {
+			opNode->nodeType = "LT";
+		}
+		else if (currentToken->tokenType == "LESS_THAN_EQUALS") {
+			opNode->nodeType = "LTEQ";
+		}
+		else if (currentToken->tokenType == "GREATER_THAN") {
+			opNode->nodeType = "GT";
+		}
+		else if (currentToken->tokenType == "GREATER_THAN_EQUALS") {
+			opNode->nodeType = "GTEQ";
+		}
+		else if (currentToken->tokenType == "AND") {
+			opNode->nodeType = "AND";
+		}
+		else if (currentToken->tokenType == "OR") {
+			opNode->nodeType = "OR";
+		}
+		else {
+			Node* opNode = nullptr;
+		}
+	}
+	*currentToken = scan.nextToken(ifs);
+	if (opNode != nullptr) {
+		opNode->adopt(expressionNode);
+		opNode->adopt(parseSimpleExpression(ifs));
+		expressionNode = opNode;
+	}
+	return expressionNode;
+}
+Node* Parser::parseSimpleExpression(ifstream& ifs) {
+	Node* notNode = nullptr;
+	if (currentToken->tokenType == "NOT") {
+		*currentToken = scan.nextToken(ifs);
+		notNode = new Node("NOT");
+	}
+	Node* simpleExpressionNode = parseTerm(ifs);
+	while (findVector(simpleExpressionOperators, currentToken->tokenType)) {
+		if (currentToken->tokenType == "PLUS") {
+			Node* opNode = new Node("ADD");
+		}
+		else {
+			Node* opNode = new Node("SUBTRACT");
+		}
+		*currentToken = scan.nextToken(ifs);
+	}
+	if (notNode != nullptr) {
+		notNode->adopt(simpleExpressionNode);
+		simpleExpressionNode = notNode;
+	}
+	return simpleExpressionNode;
+}
+Node* Parser::parseTerm(ifstream& ifs) {
+	Node* termNode = parseFactor(ifs);
+	while (findVector(termOperators, currentToken->tokenType)) {
+		Node* opNode = nullptr;
+		if (currentToken->tokenType == "STAR") {
+			opNode = new Node("MULTIPLY");
+		}
+		else if ((currentToken->tokenType == "SLASH") || (currentToken->tokenType == "DIV")) {
+			opNode = new Node("DIVIDE");
+		}
+		else if (currentToken->tokenType == "MOD") {
+			opNode = new Node("MOD");
+		}
+		*currentToken = scan.nextToken(ifs);
+		opNode->adopt(termNode);
+		opNode->adopt(parseFactor(ifs));
+		termNode = opNode;
+	}
+	return termNode;
+}
+Node* Parser::parseFactor(ifstream &ifs) {
 	Node* factor = nullptr;
 	Node* negativeSign = nullptr;
 	if (currentToken->tokenType == "MINUS") { //looking for minus signs for negative integers
@@ -416,4 +509,13 @@ string Parser::searchVector(vector<string>myVector, string target) {
 	}
 	string emptyString = "";
 	return emptyString;
+}
+bool Parser::findVector(vector<string>myVector, string target) {
+	int max = myVector.size();   //right bound of vector search
+	for (int i = 0; i < max; i++) {
+		if (target == myVector[i]) {
+			return true;
+		}
+	}
+	return false;
 }
